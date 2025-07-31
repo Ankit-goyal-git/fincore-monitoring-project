@@ -6,3 +6,8 @@ scrape_configs:
     static_configs:
       - targets: ['172.17.0.1:5000']
 
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['172.17.0.1:9100']
+
+
