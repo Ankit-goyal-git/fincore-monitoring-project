@@ -1,0 +1,265 @@
+{
+  "apiVersion": 1,
+  "groups": [
+    {
+      "orgId": 1,
+      "name": "fincore-alert-memory",
+      "folder": "fincore-alert",
+      "interval": "1m",
+      "rules": [
+        {
+          "uid": "mem-usage-alert",
+          "title": "Memory Usage Alert",
+          "condition": "C",
+          "data": [
+            {
+              "refId": "A",
+              "relativeTimeRange": { "from": 600, "to": 0 },
+              "datasourceUid": "aetibqg7bi800d",
+              "model": {
+                "editorMode": "code",
+                "expr": "100 * (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes))",
+                "instant": true,
+                "intervalMs": 1000,
+                "legendFormat": "__auto",
+                "maxDataPoints": 43200,
+                "range": false,
+                "refId": "A"
+              }
+            },
+            {
+              "refId": "C",
+              "relativeTimeRange": { "from": 0, "to": 0 },
+              "datasourceUid": "__expr__",
+              "model": {
+                "conditions": [
+                  {
+                    "evaluator": { "params": [80], "type": "gt" },
+                    "operator": { "type": "and" },
+                    "query": { "params": ["C"] },
+                    "reducer": { "params": [], "type": "last" },
+                    "type": "query"
+                  }
+                ],
+                "datasource": { "type": "__expr__", "uid": "__expr__" },
+                "expression": "A",
+                "intervalMs": 1000,
+                "maxDataPoints": 43200,
+                "refId": "C",
+                "type": "threshold"
+              }
+            }
+          ],
+          "noDataState": "NoData",
+          "execErrState": "Error",
+          "for": "1m",
+          "keepFiringFor": "2m",
+          "annotations": {
+            "description": "Memory usage on instance {{ $labels.instance }} is above 80%.",
+            "summary": "High Memory Usage"
+          },
+          "labels": { "severity": "warning" },
+          "isPaused": false,
+          "notification_settings": {
+            "receiver": "grafana-default-email"
+          }
+        }
+      ]
+    },
+    {
+      "orgId": 1,
+      "name": "fincore-alert-lowdisk",
+      "folder": "fincore-alert",
+      "interval": "1m",
+      "rules": [
+        {
+          "uid": "lowdisk-alert",
+          "title": "Low Disk Space Alert",
+          "condition": "C",
+          "data": [
+            {
+              "refId": "A",
+              "relativeTimeRange": { "from": 600, "to": 0 },
+              "datasourceUid": "aetibqg7bi800d",
+              "model": {
+                "editorMode": "code",
+                "expr": "(node_filesystem_size_bytes{fstype!~\"tmpfs|overlay\"} - node_filesystem_free_bytes{fstype!~\"tmpfs|overlay\"}) / node_filesystem_size_bytes{fstype!~\"tmpfs|overlay\"} * 100",
+                "instant": true,
+                "intervalMs": 1000,
+                "legendFormat": "__auto",
+                "maxDataPoints": 43200,
+                "range": false,
+                "refId": "A"
+              }
+            },
+            {
+              "refId": "C",
+              "relativeTimeRange": { "from": 0, "to": 0 },
+              "datasourceUid": "__expr__",
+              "model": {
+                "conditions": [
+                  {
+                    "evaluator": { "params": [80], "type": "gt" },
+                    "operator": { "type": "and" },
+                    "query": { "params": ["C"] },
+                    "reducer": { "params": [], "type": "last" },
+                    "type": "query"
+                  }
+                ],
+                "datasource": { "type": "__expr__", "uid": "__expr__" },
+                "expression": "A",
+                "intervalMs": 1000,
+                "maxDataPoints": 43200,
+                "refId": "C",
+                "type": "threshold"
+              }
+            }
+          ],
+          "noDataState": "NoData",
+          "execErrState": "Error",
+          "for": "1m",
+          "keepFiringFor": "2m",
+          "annotations": {
+            "description": "Disk usage is above 80% on {{ $labels.instance }}.",
+            "summary": "Low Disk Space"
+          },
+          "labels": { "severity": "warning" },
+          "isPaused": false,
+          "notification_settings": {
+            "receiver": "grafana-default-email"
+          }
+        }
+      ]
+    },
+    {
+      "orgId": 1,
+      "name": "fincore-alert-iowait",
+      "folder": "fincore-alert",
+      "interval": "1m",
+      "rules": [
+        {
+          "uid": "iowait-alert",
+          "title": "Disk I/O Wait Alert",
+          "condition": "C",
+          "data": [
+            {
+              "refId": "A",
+              "relativeTimeRange": { "from": 600, "to": 0 },
+              "datasourceUid": "aetibqg7bi800d",
+              "model": {
+                "editorMode": "code",
+                "expr": "rate(node_cpu_seconds_total{mode=\"iowait\"}[1m]) * 100",
+                "instant": true,
+                "intervalMs": 1000,
+                "legendFormat": "__auto",
+                "maxDataPoints": 43200,
+                "range": false,
+                "refId": "A"
+              }
+            },
+            {
+              "refId": "C",
+              "relativeTimeRange": { "from": 0, "to": 0 },
+              "datasourceUid": "__expr__",
+              "model": {
+                "conditions": [
+                  {
+                    "evaluator": { "params": [20], "type": "gt" },
+                    "operator": { "type": "and" },
+                    "query": { "params": ["C"] },
+                    "reducer": { "params": [], "type": "last" },
+                    "type": "query"
+                  }
+                ],
+                "datasource": { "type": "__expr__", "uid": "__expr__" },
+                "expression": "A",
+                "intervalMs": 1000,
+                "maxDataPoints": 43200,
+                "refId": "C",
+                "type": "threshold"
+              }
+            }
+          ],
+          "noDataState": "NoData",
+          "execErrState": "Error",
+          "for": "1m",
+          "keepFiringFor": "2m",
+          "annotations": {
+            "description": "CPU is waiting on disk I/O for more than 20% of the time on {{ $labels.instance }}.",
+            "summary": "High Disk I/O Wait"
+          },
+          "labels": { "severity": "warning" },
+          "isPaused": false,
+          "notification_settings": {
+            "receiver": "grafana-default-email"
+          }
+        }
+      ]
+    },
+    {
+      "orgId": 1,
+      "name": "fincore-alert-node",
+      "folder": "fincore-alert",
+      "interval": "1m",
+      "rules": [
+        {
+          "uid": "node-down-alert",
+          "title": "Node Down Alert",
+          "condition": "C",
+          "data": [
+            {
+              "refId": "A",
+              "relativeTimeRange": { "from": 600, "to": 0 },
+              "datasourceUid": "aetibqg7bi800d",
+              "model": {
+                "editorMode": "code",
+                "expr": "up == 0",
+                "instant": true,
+                "intervalMs": 1000,
+                "legendFormat": "__auto",
+                "maxDataPoints": 43200,
+                "range": false,
+                "refId": "A"
+              }
+            },
+            {
+              "refId": "C",
+              "relativeTimeRange": { "from": 0, "to": 0 },
+              "datasourceUid": "__expr__",
+              "model": {
+                "conditions": [
+                  {
+                    "evaluator": { "params": [0], "type": "eq" },
+                    "operator": { "type": "and" },
+                    "query": { "params": ["C"] },
+                    "reducer": { "params": [], "type": "last" },
+                    "type": "query"
+                  }
+                ],
+                "datasource": { "type": "__expr__", "uid": "__expr__" },
+                "expression": "A",
+                "intervalMs": 1000,
+                "maxDataPoints": 43200,
+                "refId": "C",
+                "type": "threshold"
+              }
+            }
+          ],
+          "noDataState": "NoData",
+          "execErrState": "Error",
+          "for": "1m",
+          "keepFiringFor": "2m",
+          "annotations": {
+            "description": "Prometheus target {{ $labels.instance }} is down.",
+            "summary": "Node Down"
+          },
+          "labels": { "severity": "critical" },
+          "isPaused": false,
+          "notification_settings": {
+            "receiver": "grafana-default-email"
+          }
+        }
+      ]
+    }
+  ]
+}
