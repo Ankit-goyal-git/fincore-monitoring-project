@@ -16,15 +16,15 @@ This project demonstrates an end-to-end **Monitoring & Observability system** fo
 
 ## 📁 Folder Structure
 
-fincore-monitoring/
-├── app.py # Flask application exposing /metrics
-├── Dockerfile # Docker image for Flask app
-├── prometheus.yml # Prometheus scrape config
-├── Grafana/
-│ └── node-exporter-dashboard.json # Grafana dashboard export
-├── screenshots/
-│ ├── grafana.png # Screenshot of Grafana dashboard
-│ └── Prometheus-targets.png # Screenshot of Prometheus targets
+fincore-monitoring/                                          
+├── app.py # Flask application exposing /metrics                      
+├── Dockerfile # Docker image for Flask app                 
+├── prometheus.yml # Prometheus scrape config                   
+├── Grafana/                   
+│     └── node-exporter-dashboard.json # Grafana dashboard export  
+├── screenshots/     
+│     ├── grafana.png # Screenshot of Grafana dashboard        
+│     └── Prometheus-targets.png # Screenshot of Prometheus targets
 
 
 ---
@@ -39,6 +39,7 @@ fincore-monitoring/
 
 ```bash
 ssh -i "path/to/your-key.pem" ec2-user@<EC2_PUBLIC_IP>
+```
 
 ### 🔹 Step 3:Install Docker
 
@@ -49,134 +50,142 @@ sudo yum install docker -y
 sudo service docker start
 sudo usermod -aG docker ec2-user
 exit
+```
 
-####Reconnect to apply Docker permissions
+#### Reconnect to apply Docker permissions
 
 ```bash
 ssh -i "path/to/your-key.pem" ec2-user@<EC2_PUBLIC_IP>
-
+```
 
 ### 🔹 Step 4: Upload Project from Your Local PC
 
 ```bash
 scp -i "path/to/your-key.pem" -r fincore-monitoring/ ec2-user@<EC2_PUBLIC_IP>:/home/ec2-user/
+```
 
-###🔹 Step 5: Build and Run Flask App
+### 🔹 Step 5: Build and Run Flask App
 
 ```bash
 cd fincore-monitoring
 docker build -t ecommerce-app .
 docker run -d -p 5000:5000 ecommerce-app
+```
 
-####Test in browser
-http://<EC2_PUBLIC_IP>:5000/products
+#### Test in browser
+```
+http://<EC2_PUBLIC_IP>:5000/products 
+```
 
-###🔹 Step 6: Start Prometheus
+### 🔹 Step 6: Start Prometheus
 
 ```bash
 docker run -d -p 9090:9090 \
   -v $PWD/prometheus.yml:/etc/prometheus/prometheus.yml \
   prom/prometheus
+```
 
-####Check Prometheus Targets:
+#### Check Prometheus Targets:
+```
 http://<EC2_PUBLIC_IP>:9090/targets
-(refer saved screenshot at /screenshots/Prometheus-targets.png
+(refer saved screenshot at /screenshots/Prometheus-targets.png for preview)
+```
 
 
+### 🔹 Step 7: Start Node Exporter
 
-
-
-🔹 Step 7: Start Node Exporter
-bash
-Copy code
+```bash
 docker run -d -p 9100:9100 prom/node-exporter
-🔹 Step 8: Start Grafana
-bash
-Copy code
-docker run -d -p 3000:3000 grafana/grafana
-Open Grafana:
+```
 
-cpp
-Copy code
+###🔹 Step 8: Start Grafana
+
+```bash
+docker run -d -p 3000:3000 grafana/grafana
+```
+
+Open Grafana:
+```
 http://<EC2_PUBLIC_IP>:3000
+```
+
 Login:
 
-Username: admin
+- Username: admin
 
-Password: admin
+- Password: admin
 
-🔹 Step 9: Import Dashboard in Grafana
-Go to Dashboards → Import
+### 🔹 Step 9: Import Dashboard in Grafana
+- Go to Dashboards → Import
 
-Upload: Grafana/node-exporter-dashboard.json
+- Upload: Grafana/node-exporter-dashboard.json
 
-Set data source: Prometheus
+- Set data source: Prometheus
 
-🧪 How to Generate Metrics
+
+#### 🧪 How to Generate Metrics
 Use this URL to simulate load:
 
-arduino
-Copy code
+```arduino
 http://<EC2_PUBLIC_IP>:5000/products
+```
+
 Each request will increment Prometheus counters like:
 
-http_requests_total
+- http_requests_total
 
-http_request_duration_seconds
+- http_request_duration_seconds
 
-http_request_errors_total
+- http_request_errors_total
 
-📷 Screenshots (Upload via SCP)
-Take screenshots of:
 
-Your Grafana dashboard
+## 📷 Screenshots (Uploaded via SCP)
 
-Your Prometheus targets page
+### Grafana dashboard (Grafana.png)
 
-Save as:
+![alt text](screenshots/grafana.png)
 
-grafana.png
+### Prometheus targets page (Prometheus-targets.png)
 
-Prometheus-targets.png
+![alt text](screenshots/Prometheus-targets.png)
 
-Upload to EC2:
 
-bash
-Copy code
-scp -i "your-key.pem" grafana.png ec2-user@<EC2_PUBLIC_IP>:/home/ec2-user/
-scp -i "your-key.pem" Prometheus-targets.png ec2-user@<EC2_PUBLIC_IP>:/home/ec2-user/
-Move them to your folder:
+## 📡 Prometheus Targets
 
-bash
-Copy code
-mkdir -p fincore-monitoring/screenshots
-mv grafana.png Prometheus-targets.png fincore-monitoring/screenshots/
-📸 Screenshot Previews
-📊 Grafana Dashboard
+### 📈 Metrics Tracked
 
-📡 Prometheus Targets
+- Custom App Metrics:
 
-📈 Metrics Tracked
-Custom App Metrics:
+- http_requests_total
 
-http_requests_total
+- http_request_duration_seconds
 
-http_request_duration_seconds
+- http_request_errors_total
 
-http_request_errors_total
+- System Metrics (via Node Exporter):
 
-System Metrics (via Node Exporter):
+- CPU, RAM, Disk, Filesystem usage
 
-CPU, RAM, Disk, Filesystem usage
 
-📌 Future Enhancements
-Add Alertmanager for Slack/Email alerts
+### 📌 Future Enhancements
+- Add Alertmanager for Slack/Email alerts
 
-Provision infrastructure with Terraform
+- Provision infrastructure with Terraform
 
-Use Docker Compose for easier deployment
+- Use Docker Compose for easier deployment
 
-Add API testing load scripts
+- Add API testing load scripts
+
+
+---
+
+
+
+
+
+
+
+
 
 👨‍💻 Author & Project Info
 Internship: FinCore – Monitoring & Observability
@@ -184,15 +193,8 @@ Name: Your Name Here
 Email: your.email@example.com
 Skills Learned: Docker, EC2, Prometheus, Grafana
 
-✅ Project Status
-✅ Docker containers up and running
-✅ Prometheus and Node Exporter working
-✅ Dashboards imported in Grafana
-✅ Screenshots saved and uploaded
-✅ Ready for demo or GitHub push!
 
-vbnet
-Copy code
+
 
 ---
 
