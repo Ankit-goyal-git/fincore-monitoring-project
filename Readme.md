@@ -294,7 +294,7 @@ Restarts Node Exporter to restore monitoring.
 
 ### Grafana dashboard (Grafana.png)
 
-![alt text](screenshots/Grafana.png)
+![alt text](screenshots/grafana.png)
 ![alt text](screenshots/Grafana2.png)
 
 ---
