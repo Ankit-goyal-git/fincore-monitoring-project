@@ -13,4 +13,3 @@ variable "key_name" {
 variable "public_key_path" {
   default = "/home/ec2-user/.ssh/fincore-key.pub" 
 }
-
