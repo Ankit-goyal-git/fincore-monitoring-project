@@ -43,3 +43,4 @@ resource "aws_instance" "fincore_ec2" {
     Name = "fincore-monitoring-instance"
   }
 }
+
