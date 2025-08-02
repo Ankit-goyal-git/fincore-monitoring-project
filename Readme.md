@@ -9,6 +9,7 @@
 This project demonstrates an end-to-end **Monitoring & Observability system** for a Dockerized Flask-based application using **Prometheus + Grafana**,and **Alertmanager**, hosted on **AWS EC2**.  It captures both custom application metrics exposed via **/metrics** and system-level metrics using **Node Exporter**, enabling real-time visibility, alerting, and dashboarding. Infrastructure resources are provisioned using **Terraform** for repeatable, automated deployment.
 ## 📚 Table of Contents
 
+
 - [Tech Stack](#tech-stack)
 - [Project Status](#project-status)
 - [Folder Structure](#folder-structure)
