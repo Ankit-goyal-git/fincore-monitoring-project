@@ -3,26 +3,62 @@
 ![Docker](https://img.shields.io/badge/Docker-Enabled-blue?logo=docker)
 ![Grafana](https://img.shields.io/badge/Grafana-Dashboards-orange?logo=grafana)
 ![Prometheus](https://img.shields.io/badge/Prometheus-Metrics-orange?logo=prometheus)
+![Terraform](https://img.shields.io/badge/Terraform-Infrastructure-blueviolet?logo=terraform)
 
-This project demonstrates an end-to-end **Monitoring & Observability system** for a Dockerized Flask-based application using **Prometheus + Grafana**, hosted on **AWS EC2**. It captures both custom application metrics and system metrics with Node Exporter.
+
+This project demonstrates an end-to-end **Monitoring & Observability system** for a Dockerized Flask-based application using **Prometheus + Grafana**,and **Alertmanager**, hosted on **AWS EC2**.  It captures both custom application metrics exposed via **/metrics** and system-level metrics using **Node Exporter**, enabling real-time visibility, alerting, and dashboarding. Infrastructure resources are provisioned using **Terraform** for repeatable, automated deployment.
 ## 📚 Table of Contents
 
 - [Tech Stack](#tech-stack)
+- [Project Status](#project-status)
 - [Folder Structure](#folder-structure)
-- [How to Clone and Run This Project](#how-to-clone-and-run-this-project)
+- [Provision with Terraform](#provision-with-terraform)
+- [How to Clone and Run This Project Manually](#how-to-clone-and-run-this-project-manually)
 - [Alerting](#alerting)
-- [Simulate Alerts](#simulate-alerts)
+- [How to Simulate and Revert Alerts](#how-to-simulate-and-revert-alerts)
 - [Screenshots](#screenshots-uploaded-via-scp)
+- [Future Enhancement](#future-enhancements)
 
 
 
 ## Tech Stack
 
-- 🐍 Flask (Python microservice with Prometheus metrics)
-- 📈 Prometheus (metrics collection)
-- 📊 Grafana (visual dashboards)
-- 📦 Docker (containerization)
-- ☁️ AWS EC2 (infrastructure)
+- 🐍 Language & Framework
+
+    - Python (Flask)
+
+- 📈 Monitoring & Observability
+
+   - 🔭 Prometheus – Metrics scraping and storage
+
+   - 📦 Node Exporter – Host-level system metrics
+
+   - 📊 Grafana – Metrics dashboards and visualization
+
+   - 🚨 Alertmanager – Alerting based on Prometheus rules
+
+- 📦 Containerization
+
+   - 🐳 Docker – Containerizing the Flask application
+
+- ☁️ Cloud Infrastructure
+
+   - 🌐 AWS EC2 – Hosting Prometheus, Grafana, and the app
+
+   - ⚙️ Terraform – Automating EC2 provisioning
+
+## Project Status
+- ✅ Fully Working — Complete monitoring and observability setup
+
+- ✅ Dockerized — Runs all services in Docker containers
+
+- ✅ App + System Monitoring — Tracks both Flask metrics and system metrics via Node Exporter
+
+- ✅ Visual Proof — Grafana & Prometheus screenshots included
+
+- ✅ Easy to Replicate — Just clone the repo and follow the setup instructions
+
+- ✅ Infrastructure as Code — AWS EC2 provisioning via Terraform
 
 
 ## Folder Structure
@@ -38,11 +74,67 @@ fincore-monitoring/
   │   └── node-exporter-dashboard.json # Grafana dashboard export  
   ├── screenshots/     
   │     ├── grafana.png # Screenshot of Grafana 
-  |     ├── Grafana2.png # Another dashboard viewdashboard        
+  |     ├── Grafana2.png # Another dashboard view     
   │     └── Prometheus-targets.png # Screenshot of Prometheus targets
+  ├── terraform-fincore/
+  │     ├── main.tf               # Terraform infrastructure config
+  │     ├── output.tf             # Output values from Terraform
+  │     ├── terraform.tfvars      # Environment-specific variable values
+  │     └── variables.tf          # Declared Terraform variables
 
 ```
-## How to Clone and Run This Project
+
+## Provision with Terraform
+### Prerequisites
+- Terraform Installed
+
+- AWS credentials configured using aws configure
+
+- SSH key pair (public & private)
+
+
+You can provision the entire infrastructure on AWS EC2 using [Terraform](https://www.terraform.io/). This includes:
+- Launching EC2 instance
+- Installing Docker
+- Cloning this GitHub repo
+- Running the Flask App, Prometheus, Grafana, and Node Exporter
+
+### 📁 Terraform Directory Structure
+
+- main.tf — for infrastructure definition
+
+- variables.tf — to define variables like AMI ID, key path
+
+- outputs.tf - To print instance IP after apply
+
+
+- terraform.tfvars — your actual values (create inside terraform-fincore folder)
+
+```hcl
+key_name         = "fincore-key"
+public_key_path  = "/path/to/your/public.pem"
+private_key_path = "/path/to/your/private.pem"
+```
+
+### Deploy via Terraform
+
+```bash
+cd terraform-fincore    # Changes to terraform directory
+# Create terraform.tfvars With proper key_paths
+terraform init          # Initialize project
+terraform plan          # Preview actions
+terraform apply         # Create resources
+```
+Once it finishes, you’ll see the public IP of the new EC2 instance. You can then access:
+
+Flask app: `http://<public-ip>:5000`
+
+Prometheus: `http://<public-ip>:9090`
+
+Grafana:  `http://<public-ip>:3000`
+
+
+## How to Clone and Run This Project Manually
 ### 🔹 1. Clone the Repository
 
 ```bash
@@ -249,6 +341,7 @@ No action needed — memory is released automatically after 30 seconds.
 ```bash
 dd if=/dev/zero of=testfile bs=10M count=500
 ```
+![alt text](<screenshots/Simulating Alert.png.jpeg>)
 This writes 5GB to disk, causing disk I/O pressure.
 
 **Revert:**
@@ -267,6 +360,8 @@ dd if=/dev/zero of=bigfile bs=100M count=100
 ```
 Creates a 10GB dummy file to reduce available disk space.
 
+- Triggered Alert : 
+![alt text](screenshots/Alert-firing.png)
 **Revert:**
 
 ```bash
@@ -292,6 +387,13 @@ Restarts Node Exporter to restore monitoring.
 
 ## Screenshots (Uploaded via SCP)
 
+
+### Prometheus targets page (Prometheus-targets.png)
+
+![alt text](screenshots/Prometheus-targets.png)
+
+---
+
 ### Grafana dashboard (Grafana.png)
 
 ![alt text](screenshots/grafana.png)
@@ -299,35 +401,21 @@ Restarts Node Exporter to restore monitoring.
 
 ---
 
+### Alerts (Alerts.png)
 
-### Prometheus targets page (Prometheus-targets.png)
-
-![alt text](screenshots/Prometheus-targets.png)
-
-
-
-### 📌 Future Enhancements
+![alt text](screenshots/Alerts.png)
+---
 
 
-- Provision infrastructure with Terraform
+
+## Future Enhancements
 
 - Use Docker Compose for easier deployment
 
 - Add API testing load scripts
 
+- Automated Setup Scripts (Shell/Terraform modules) for reproducible provisioning
 
----
-
-
-✅ Project Status : Fully working
-
-✅ Runs in Docker
-
-✅ Monitors Flask app and system
-
-✅ Screenshots included
-
-✅ Easy to replicate by cloning repo
 
 
 
