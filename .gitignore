@@ -1,0 +1,18 @@
+# Ignore private keys
+*.pem
+*.pub
+
+# Terraform files
+*.tfstate
+*.tfstate.*
+crash.log
+.terraform/
+.terraform.lock.hcl
+
+# Python cache
+__pycache__/
+*.pyc
+
+# OS files
+.DS_Store
+Thumbs.db
