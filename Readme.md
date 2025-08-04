@@ -153,7 +153,7 @@ Grafana:  `http://<public-ip>:3000`
 
 ```bash
 git clone https://github.com/darpan-cloud/fincore-project.git
-cd fincore-monitoring
+cd fincore-project
 ```
 
 ### 🔹 2.  Launch EC2 Instance (Amazon Linux 2)
