@@ -152,7 +152,7 @@ Grafana:  `http://<public-ip>:3000`
 ### 🔹 1. Clone the Repository
 
 ```bash
-git clone [https://github.com/darpan-cloud/fincore-monitoring.git](https://github.com/darpan-cloud/fincore-project.git)
+git clone https://github.com/darpan-cloud/fincore-project.git
 cd fincore-monitoring
 ```
 
