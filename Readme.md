@@ -363,7 +363,7 @@ No action needed — memory is released automatically after 30 seconds.
 ```bash
 dd if=/dev/zero of=testfile bs=10M count=500
 ```
-![alt text](<screenshots/Simulating Alert.png>)
+![alt text](<screenshots/Simulating-alert.png>)
 This writes 5GB to disk, causing disk I/O pressure.
 
 **Revert:**
