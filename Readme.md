@@ -1,4 +1,4 @@
-# FinCore Monitoring & Observability Project
+# FinCore Banking Microservices Monitoring & Observability Project
 
 ![Docker](https://img.shields.io/badge/Docker-Enabled-blue?logo=docker)
 ![Grafana](https://img.shields.io/badge/Grafana-Dashboards-orange?logo=grafana)
@@ -6,7 +6,20 @@
 ![Terraform](https://img.shields.io/badge/Terraform-Infrastructure-blueviolet?logo=terraform)
 
 
-This project demonstrates an end-to-end **Monitoring & Observability system** for a Dockerized Flask-based application using **Prometheus + Grafana**,and **Alertmanager**, hosted on **AWS EC2**.  It captures both custom application metrics exposed via **/metrics** and system-level metrics using **Node Exporter**, enabling real-time visibility, alerting, and dashboarding. Infrastructure resources are provisioned using **Terraform** for repeatable, automated deployment.
+This project demonstrates an end-to-end **Monitoring & Observability system** for a Dockerized Flask-based **banking microservices** application using **Prometheus + Grafana**,and **Alertmanager**, hosted on **AWS EC2**.  It captures both custom application metrics exposed via **/metrics** and system-level metrics using **Node Exporter**, enabling real-time visibility, alerting, and dashboarding. Infrastructure resources are provisioned using **Terraform** for repeatable, automated deployment.
+
+The Flask app simulates core banking services with microservice-style endpoints:
+
+- /balance: Shows current balance.
+
+- /transfer: Simulates a money transfer.
+
+- /transactions: Lists recent transactions.
+
+Metrics are collected using Prometheus client libraries.
+
+
+
 ## 📚 Table of Contents
 
 
@@ -66,7 +79,7 @@ This project demonstrates an end-to-end **Monitoring & Observability system** fo
 
 ```bash
 fincore-monitoring/                                          
-  ├── app.py # Flask application exposing /metrics                      
+  ├── app.py # Flask-based banking microservices app exposing /balance, /transfer, etc.                      
   ├── Dockerfile # Docker image for Flask app                 
   ├── prometheus.yml # Prometheus scrape config   
   ├── README.md  # Project documentation                
@@ -182,12 +195,13 @@ scp -i "path/to/your-key.pem" -r fincore-monitoring/ ec2-user@<EC2_PUBLIC_IP>:/h
 
 ```bash
 cd fincore-monitoring
-docker build -t ecommerce-app .
-docker run -d -p 5000:5000 ecommerce-app
+docker build -t banking-app .
+docker run -d -p 5000:5000 banking-app
 ```
 
 Open in browser:
-`http://<EC2_PUBLIC_IP>:5000/products`
+`http://<EC2_PUBLIC_IP>:5000/balance`
+
 
 ### 🔹 7. Start Prometheus
 
@@ -200,7 +214,14 @@ docker run -d -p 9090:9090 \
 - Check Prometheus Targets:
 `http://<EC2_PUBLIC_IP>:9090/targets`
 
-- Verify both Node-exporter and E-commerce app should be UP
+- Verify both Node-exporter and banking app should be UP
+
+#### To Simulate Load using CLI use:
+`curl http://<IP>:5000/balance`
+
+`curl http://<IP>:5000/transfer`
+
+`curl http://<IP>:5000/transactions`
 
 ### 🔹 8. Start Node Exporter
 
@@ -239,7 +260,7 @@ docker run -d -p 3000:3000 grafana/grafana
 #### 🧪 How to Generate Metrics
 Open the following repeatedly to simulate API load:
 
-`http://<EC2_PUBLIC_IP>:5000/products`
+`http://<EC2_PUBLIC_IP>:5000/balance`
 
 
 This updates metrics like:
@@ -342,7 +363,7 @@ No action needed — memory is released automatically after 30 seconds.
 ```bash
 dd if=/dev/zero of=testfile bs=10M count=500
 ```
-![alt text](<screenshots/Simulating Alert.png.jpeg>)
+![alt text](<screenshots/Simulating Alert.png>)
 This writes 5GB to disk, causing disk I/O pressure.
 
 **Revert:**
@@ -413,10 +434,13 @@ Restarts Node Exporter to restore monitoring.
 
 - Use Docker Compose for easier deployment
 
-- Add API testing load scripts
-
 - Automated Setup Scripts (Shell/Terraform modules) for reproducible provisioning
 
+- Add real-time transaction processing alerts
+
+- Separate microservices for each banking endpoint
+
+- Add API load testing (e.g. for /transfer spikes)
 
 ---
 
