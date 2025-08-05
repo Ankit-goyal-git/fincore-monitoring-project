@@ -106,6 +106,17 @@ fincore-monitoring/
 
 - SSH key pair (public & private)
 
+If key pair not available use :
+```
+ssh-keygen -t rsa -b 4096 -f ~/.ssh/<keyname>
+```
+
+For Windows:
+```
+mkdir %USERPROFILE%\.ssh
+ssh-keygen -t rsa -b 4096 -f %USERPROFILE%\.ssh\fincore-key
+```
+
 
 You can provision the entire infrastructure on AWS EC2 using [Terraform](https://www.terraform.io/). This includes:
 - Launching EC2 instance
@@ -125,9 +136,12 @@ You can provision the entire infrastructure on AWS EC2 using [Terraform](https:/
 - terraform.tfvars — your actual values (create inside terraform-fincore folder)
 
 ```hcl
-key_name         = "fincore-key"
-public_key_path  = "/path/to/your/public.pem"
-private_key_path = "/path/to/your/private.pem"
+aws_region      = "ap-south-1"
+ami_id          = "ami-0d0ad8bb301edb745"  
+key_name        = "fincore-key"
+public_key_path = "/home/ec2-user/.ssh/fincore-key.pub"
+
+#Update keyname and path as per your public key
 ```
 
 ### Deploy via Terraform
