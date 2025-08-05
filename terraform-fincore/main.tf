@@ -39,6 +39,15 @@ resource "aws_instance" "fincore_ec2" {
   key_name      = aws_key_pair.fincore_key.key_name
   vpc_security_group_ids = [aws_security_group.fincore_sg.id]
 
+user_data = <<-EOF
+              #!/bin/bash
+              yum update -y
+              yum install git -y
+              cd /home/ec2-user
+              git clone https://github.com/darpan-cloud/fincore-project.git
+              chown -R ec2-user:ec2-user fincore-project 
+              EOF
+
   tags = {
     Name = "fincore-monitoring-instance"
   }
