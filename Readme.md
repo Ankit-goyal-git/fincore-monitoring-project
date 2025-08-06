@@ -83,13 +83,28 @@ fincore-monitoring/
   ├── Dockerfile # Docker image for Flask app                 
   ├── prometheus.yml # Prometheus scrape config   
   ├── README.md  # Project documentation                
-  ├── Grafana/  
-  │   ├── fincore-alerts.json # Custom alert panel                 
-  │   └── node-exporter-dashboard.json # Grafana dashboard export  
+  ├── grafana/
+  │   ├── grafana.ini                 # Grafana config file enabling SMTP and provisioning settings
+  │   ├── dashboards/
+  │   │   ├── fincore-alerts.json     # Grafana dashboard JSON for custom banking alert panels
+  │   │   └── node-exporter-dashboard.json # Grafana dashboard JSON for node-exporter metrics
+  │   └── provisioning/
+  │       ├── alerting.yaml           # Main alerting provisioning entry to load contact points and alert rules
+  │       ├── alerting/
+  │       │   ├── contact-points.yml          # Defines contact points (e.g., email) for alert delivery
+  │       │   ├── fincore-alerts.yml          # Defines actual alert rules and expressions
+  │       │   └── notification-policies.yml   # Policies for how/when to notify contact points
+  │       ├── dashboards/
+  │       │   └── dashboards.yml      # Grafana dashboards provisioning file (maps folder and files)
+  │       └── datasources/
+  │           └── prometheus-datasource.yml # Grafana provisioning file for Prometheus data source
   ├── screenshots/     
   │     ├── grafana.png # Screenshot of Grafana 
   |     ├── Grafana2.png # Another dashboard view     
-  │     └── Prometheus-targets.png # Screenshot of Prometheus targets
+  │     ├──Prometheus-targets.png # Screenshot of Prometheus targets
+  │     ├── Alert-firing.png            # Screenshot of triggered alert
+  │     ├── Alerts.png                  # Screenshot showing alert rules in Grafana
+  │     └── Simulating-alert.png        # Screenshot demonstrating simulated alert
   ├── terraform-fincore/
   │     ├── main.tf               # Terraform infrastructure config
   │     ├── output.tf             # Output values from Terraform
