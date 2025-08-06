@@ -1,0 +1,244 @@
+apiVersion: 1
+groups:
+    - orgId: 1
+      name: fincore-alert-disk I/O
+      folder: fincore-disk I\/O
+      interval: 1m
+      rules:
+        - uid: eeto5kc4iczcwa
+          title: Disk I/O Wait Alert
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: aetibqg7bi800d
+              model:
+                editorMode: code
+                expr: "rate(node_cpu_seconds_total{mode=\"iowait\"}[1m]) * 100\r\n"
+                instant: true
+                intervalMs: 1000
+                legendFormat: __auto
+                maxDataPoints: 43200
+                range: false
+                refId: A
+            - refId: C
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 20
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          noDataState: NoData
+          execErrState: Error
+          for: 2m
+          annotations:
+            description: CPU is spending more than 20% of its time waiting on disk I/O on instance {{ $labels.instance }}.
+            summary: High Disk I/O Wait Detected
+          labels:
+            severity: warning
+          isPaused: false
+          notification_settings:
+            receiver: grafana-default-email
+    - orgId: 1
+      name: fincore-alert
+      folder: fincore-monitoring
+      interval: 1m
+      rules:
+        - uid: eeto3cpsfw83ke
+          title: High CPU Usage Alert
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: aetibqg7bi800d
+              model:
+                disableTextWrap: false
+                editorMode: code
+                expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[2m])) * 100)
+                fullMetaSearch: false
+                includeNullMetadata: true
+                instant: true
+                intervalMs: 1000
+                legendFormat: __auto
+                maxDataPoints: 43200
+                range: false
+                refId: A
+                useBackend: false
+            - refId: C
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 80
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          noDataState: NoData
+          execErrState: Error
+          for: 2m
+          keepFiringFor: 1m
+          annotations:
+            description: CPU usage on instance {{ $labels.instance }} has exceeded 80% for the last 2 minutes.
+            summary: High CPU usage detected
+          labels:
+            severity: critical
+          isPaused: false
+          notification_settings:
+            receiver: grafana-default-email
+    - orgId: 1
+      name: fincore-alert-memory
+      folder: fincore-alert
+      interval: 1m
+      rules:
+        - uid: beto4b8roy1hcf
+          title: Memory Usage Alert
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: aetibqg7bi800d
+              model:
+                editorMode: code
+                expr: 100 * (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes))
+                instant: true
+                intervalMs: 1000
+                legendFormat: __auto
+                maxDataPoints: 43200
+                range: false
+                refId: A
+            - refId: C
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 80
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          noDataState: NoData
+          execErrState: Error
+          for: 2m
+          keepFiringFor: 2m
+          annotations:
+            description: Memory usage on instance {{ $labels.instance }} is above 80%.
+            summary: High Memory Usage
+          labels:
+            severity: warning
+          isPaused: false
+          notification_settings:
+            receiver: grafana-default-email
+    - orgId: 1
+      name: fincore-alert-lowdisk
+      folder: fincore-low disk alert
+      interval: 1m
+      rules:
+        - uid: feto4z83qk5q8a
+          title: 'Low Disk Space '
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: aetibqg7bi800d
+              model:
+                editorMode: code
+                expr: "(node_filesystem_size_bytes{fstype!~\"tmpfs|overlay\"} - node_filesystem_free_bytes{fstype!~\"tmpfs|overlay\"}) \r\n/ node_filesystem_size_bytes{fstype!~\"tmpfs|overlay\"} * 100\r\n"
+                instant: true
+                intervalMs: 1000
+                legendFormat: __auto
+                maxDataPoints: 43200
+                range: false
+                refId: A
+            - refId: C
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 80
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          noDataState: NoData
+          execErrState: Error
+          for: 2m
+          annotations:
+            description: The disk usage on instance {{ $labels.instance }} has crossed 80%.
+            summary: Disk space running low
+          labels:
+            severity: warning
+          isPaused: false
+          notification_settings:
+            receiver: grafana-default-email

@@ -1,0 +1,64 @@
+{
+  "uid": "ebbanking-dashboard",
+  "title": "eBanking Service Dashboard",
+  "schemaVersion": 36,
+  "version": 1,
+  "refresh": "10s",
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Total HTTP Requests",
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 3 },
+      "targets": [
+        {
+          "expr": "sum(increase(ebanking_http_requests_total[5m]))",
+          "legendFormat": "requests"
+        }
+      ]
+    },
+    {
+      "type": "gauge",
+      "title": "Error Rate %",
+      "gridPos": { "x": 6, "y": 0, "w": 6, "h": 3 },
+      "targets": [
+        {
+          "expr": "100 * sum(increase(ebanking_http_errors_total[5m])) / sum(increase(ebanking_http_requests_total[5m]))",
+          "legendFormat": "error rate"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Request Duration (95th percentile)",
+      "gridPos": { "x": 0, "y": 3, "w": 12, "h": 6 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(ebanking_http_request_duration_seconds_bucket[5m])) by (le))",
+          "legendFormat": "duration"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Active Users",
+      "gridPos": { "x": 0, "y": 9, "w": 6, "h": 3 },
+      "targets": [
+        {
+          "expr": "ebanking_active_users",
+          "legendFormat": "users"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Transaction Volume",
+      "gridPos": { "x": 6, "y": 9, "w": 6, "h": 3 },
+      "targets": [
+        {
+          "expr": "sum(increase(ebanking_transactions_total[5m]))",
+          "legendFormat": "transactions"
+        }
+      ]
+    }
+  ]
+}
