@@ -5,6 +5,17 @@
 ![Prometheus](https://img.shields.io/badge/Prometheus-Metrics-orange?logo=prometheus)
 ![Terraform](https://img.shields.io/badge/Terraform-Infrastructure-blueviolet?logo=terraform)
 
+FinCore Solutions is a digital-first banking startup rapidly scaling its suite of containerized microservices — handling critical functionalities such as instant payments, personalized investment tracking, and automated account services.
+
+As the microservices landscape grows, the engineering team faces increasing challenges in maintaining visibility into system performance, detecting bottlenecks, and responding quickly to disruptions.
+
+To maintain reliability and customer trust, **FinCore Solutions** requires a robust **monitoring and observability** solution that offers:
+
+- Real-time system insights  
+- Intuitive dashboards  
+- Proactive alerting  
+
+This empowers the team to detect issues early and ensure **uninterrupted service delivery** across all microservices.
 
 This project demonstrates an end-to-end **Monitoring & Observability system** for a Dockerized Flask-based **banking microservices** application using **Prometheus + Grafana**,and **Alertmanager**, hosted on **AWS EC2**.  It captures both custom application metrics exposed via **/metrics** and system-level metrics using **Node Exporter**, enabling real-time visibility, alerting, and dashboarding. Infrastructure resources are provisioned using **Terraform** for repeatable, automated deployment.
 
@@ -18,19 +29,32 @@ The Flask app simulates core banking services with microservice-style endpoints:
 
 Metrics are collected using Prometheus client libraries.
 
+## Main Objective 
+
+- To develop a centralized monitoring and observability solution for FinCore’s containerized microservices environment.
+
+- To instrument each microservice container using Prometheus client libraries for exposing essential performance metrics (e.g., CPU usage, memory consumption, request rates).
+
+- To deploy a Prometheus server for automatically scraping and collecting metrics from all service endpoints.
+
+- To design and configure Grafana dashboards that provide real-time visualization of key indicators such as latency, error rates, and resource utilization.
+
+- To implement alerting mechanisms using Prometheus or Grafana for critical system conditions, with notifications delivered via email or Slack.
+
+- To apply Infrastructure as Code principles using Terraform for automated, repeatable provisioning of the monitoring stack and deployment targets.
 
 
 ## 📚 Table of Contents
 
 
 - [Tech Stack](#tech-stack)
-- [Project Status](#project-status)
+- [Project Status](#project-status-overview)
 - [Folder Structure](#folder-structure)
 - [Provision with Terraform](#provision-with-terraform)
 - [How to Clone and Run This Project Manually](#how-to-clone-and-run-this-project-manually)
 - [Alerting](#alerting)
 - [How to Simulate and Revert Alerts](#how-to-simulate-and-revert-alerts)
-- [Screenshots](#screenshots-uploaded-via-scp)
+- [Screenshots](#screenshots)
 - [Future Enhancement](#future-enhancements)
 
 
@@ -61,18 +85,25 @@ Metrics are collected using Prometheus client libraries.
 
    - ⚙️ Terraform – Automating EC2 provisioning
 
-## Project Status
-- ✅ Fully Working — Complete monitoring and observability setup
+- Version Control and Collaboration 
 
-- ✅ Dockerized — Runs all services in Docker containers
+   - Github - Centralized Version Control system
 
-- ✅ App + System Monitoring — Tracks both Flask metrics and system metrics via Node Exporter
 
-- ✅ Visual Proof — Grafana & Prometheus screenshots included
+## Project Status Overview
 
-- ✅ Easy to Replicate — Just clone the repo and follow the setup instructions
+| Project Component                                                              | Status      | Description                                                                                  |
+|--------------------------------------------------------------------------------|-------------|----------------------------------------------------------------------------------------------|
+| 🧠 Monitoring Setup for Containerized Microservices                            | ✅ Completed | Flask-based banking microservice containerized with Docker and deployed on EC2              |
+| 📈 Metrics Instrumentation (App + System Level)                                | ✅ Completed | Prometheus client library added to app + Node Exporter for system metrics                   |
+| 📡 Prometheus Server Configuration                                             | ✅ Completed | Prometheus container scrapes metrics from both app and Node Exporter endpoints              |
+| 📊 Grafana Dashboards                                                          | ✅ Completed | Node Exporter dashboard configured to display resource and performance metrics              |
+| 🚨 Alerting Mechanism (Email/SMTP)                                             | ✅ Completed | Alerts set up in Grafana; SMTP configured for email notifications                         |
+| 🏗️ Infrastructure as Code with Terraform                                       | ✅ Completed | EC2, VPC, subnets, routing, IGW provisioned using `main.tf`; remote state via `backend.tf`  |
+| ⚙️ Auto-Provisioning of Monitoring Stack                                       | ✅ Completed | User data script installs Docker/Git, clones repo, runs containers automatically            |
+| 📦 Grafana Provisioning (Dashboards + Alerts)                                 | ✅ Completed | Dashboards and alerts auto-loaded via mounted provisioning files in Grafana container       |
+| 🔍 Proactive Monitoring & Observability                                        | ✅ Completed | Dashboards + alerts + notifications enable early detection and reduced downtime             |
 
-- ✅ Infrastructure as Code — AWS EC2 provisioning via Terraform
 
 
 ## Folder Structure
@@ -100,16 +131,21 @@ fincore-monitoring/
   │           └── prometheus-datasource.yml # Grafana provisioning file for Prometheus data source
   ├── screenshots/     
   │     ├── grafana.png # Screenshot of Grafana 
-  |     ├── Grafana2.png # Another dashboard view     
-  │     ├──Prometheus-targets.png # Screenshot of Prometheus targets
-  │     ├── Alert-firing.png            # Screenshot of triggered alert
-  │     ├── Alerts.png                  # Screenshot showing alert rules in Grafana
-  │     └── Simulating-alert.png        # Screenshot demonstrating simulated alert
+  |     ├── Grafana2.png # Another dashboard view  
+  |     ├── Dashboard-json.png # Screenshot of Exported Dashboard JSON 
+  │     ├── Prometheus-targets.png # Screenshot of Prometheus targets
+  │     ├── Alert-firing.png # Screenshot of triggered alert
+  │     ├── Alerts.png # Screenshot showing alert rules in Grafana
+  │     ├── Simulating-alert.png  # Screenshot demonstrating simulated alert
+  │     ├── Alert-firing-mail.png # Screenshot of mail for alert firing
+  │     ├── Alert-resolved-mail.png # Screenshot of mail for alert resolved notification
+  │     └── Backend-S3-statestorage.png # Screenshot of Terraform storing remote state in S3 bucket
   ├── terraform-fincore/
   │     ├── main.tf               # Terraform infrastructure config
   │     ├── output.tf             # Output values from Terraform
   │     ├── terraform.tfvars      # Environment-specific variable values
-  │     └── variables.tf          # Declared Terraform variables
+  │     ├── variables.tf          # Declared Terraform variables
+  │     └── backend.tf # Defines remote backend (S3) for shared state
 
 ```
 
@@ -122,11 +158,13 @@ fincore-monitoring/
 - SSH key pair (public & private)
 
 If key pair not available use :
+
+#### For Linux and MacOS
 ```
 ssh-keygen -t rsa -b 4096 -f ~/.ssh/<keyname>
 ```
 
-For Windows:
+#### For Windows:
 ```
 mkdir %USERPROFILE%\.ssh
 ssh-keygen -t rsa -b 4096 -f %USERPROFILE%\.ssh\fincore-key
@@ -137,18 +175,47 @@ You can provision the entire infrastructure on AWS EC2 using [Terraform](https:/
 - Launching EC2 instance
 - Installing Docker
 - Cloning this GitHub repo
-- Running the Flask App, Prometheus, Grafana, and Node Exporter
+- Running
+
+   - Flask-based Banking App
+
+   - Prometheus for metrics scraping
+
+   - Node Exporter for system metrics
+
+   - Grafana with preloaded dashboards, alerts, and Prometheus datasource
+
+### Terraform State Management
+To enable collaborative and consistent infrastructure management, the project uses remote state storage with an S3 bucket as the Terraform backend.
+
+backend.tf configures the S3 backend to store the Terraform state file remotely.
+
+This ensures state persistence, team collaboration, and safe concurrent operations.
+
+📷 See Backend-S3-statestorage.png for a screenshot of the remote state setup.
 
 ### 📁 Terraform Directory Structure
 
-- main.tf — for infrastructure definition
 
-- variables.tf — to define variables like AMI ID, key path
+| File               |                          Purpose                           |
+|--------------------|------------------------------------------------------------|
+| `main.tf`          |   Defines infrastructure (VPC, EC2, Security Groups, etc.) |
+| `variables.tf`     |   Declares input variables like AMI ID, Key Path           |
+| `outputs.tf`       |   Prints output like public IP                             |
+| `backend.tf`       |   Configures S3 backend for state storage                  |
+| `terraform.tfvars` |   Contains actual variable values (created by user)        |
 
-- outputs.tf - To print instance IP after apply
+### Terraform Configuration Breakdown
+- Custom VPC, Public Subnet, and Internet Gateway
+- Route Table and Route Table Association for outbound access
+- Security Group to allow access to ports (22, 3000,9100)
+- Key Pair for SSH authentication using user-provided public key
+- EC2 Instance with user-data to auto-install Docker, clone repo, and run:
+- Flask banking microservice
+- Prometheus, Node Exporter, Grafana with auto-provisioning
 
-
-- terraform.tfvars — your actual values (create inside terraform-fincore folder)
+### Sample terraform.tfvars
+Create a terraform.tfvars file inside the terraform-fincore directory:
 
 ```hcl
 aws_region      = "ap-south-1"
@@ -156,8 +223,8 @@ ami_id          = "ami-0d0ad8bb301edb745"
 key_name        = "fincore-key"
 public_key_path = "/home/ec2-user/.ssh/fincore-key.pub"
 
-#Update keyname and path as per your public key
 ```
+> ⚠️ Update the key_name and public_key_path according to your system.
 
 ### Deploy via Terraform
 
@@ -188,6 +255,9 @@ cd fincore-project
 ### 🔹 2.  Launch EC2 Instance (Amazon Linux 2)
 - Open ports in **Security Group**: `5000`, `9090`, `3000`, `9100`
 - Download your `.pem` file for SSH access
+
+> You can also use Terraform to provision the EC2 instance. See
+> [Terraform provisioning guide](#provision-with-terraform) for steps to provision.
 
 ### 🔹 3. SSH into EC2
 
@@ -243,7 +313,7 @@ docker run -d -p 9090:9090 \
 - Check Prometheus Targets:
 `http://<EC2_PUBLIC_IP>:9090/targets`
 
-- Verify both Node-exporter and banking app should be UP
+- Verify that both Node Exporter and the banking app are marked UP in the Prometheus targets list.
 
 #### To Simulate Load using CLI use:
 `curl http://<IP>:5000/balance`
@@ -278,8 +348,20 @@ docker run -d -p 3000:3000 \
 
   - Password: admin
 
+- Grafana Dashboard and Alerts with Data-Source(Prometheus) will be automatically provisioned.
 
-### 🔹 10. Import Grafana Dashboard
+   - To do these Manually Run :
+
+   ```bash
+   docker run -d -p 3000:3000 grafana/grafana
+   ```
+   This will only start Grafana 
+
+   - Follow steps 9-i and 9-ii to import Dashboard and Alerts
+
+
+
+### 🔹 9-i. Import Grafana Dashboard
 - Open Grafana in browser
 
 - Go to Dashboards → Import
@@ -323,7 +405,7 @@ This updates metrics like:
 
 - Disk and filesystem stats
 
-### 🔹 11. Import Alerts
+### 🔹 9-ii. Import Alerts
 
 - Open Grafana at `http://<EC2-IP>:3000` and log in.
 
@@ -397,7 +479,7 @@ No action needed — memory is released automatically after 30 seconds.
 ```bash
 dd if=/dev/zero of=testfile bs=10M count=500
 ```
-![alt text](<screenshots/Simulating-alert.png>)
+![alt text](screenshots/Simulating-alert.png)
 This writes 5GB to disk, causing disk I/O pressure.
 
 **Revert:**
@@ -441,10 +523,12 @@ docker run -d -p 9100:9100 prom/node-exporter
 ```
 Restarts Node Exporter to restore monitoring.
 
-## Screenshots (Uploaded via SCP)
+## Screenshots 
 
 
 ### Prometheus targets page (Prometheus-targets.png)
+
+Shows all the service endpoints (Flask App, Node Exporter) being scraped successfully by Prometheus.
 
 ![alt text](screenshots/Prometheus-targets.png)
 
@@ -452,16 +536,57 @@ Restarts Node Exporter to restore monitoring.
 
 ### Grafana dashboard (Grafana.png)
 
+Provides real-time visualizations of system metrics like CPU, memory, request rates, and error rates from Prometheus data sources.
+
 ![alt text](screenshots/grafana.png)
 ![alt text](screenshots/Grafana2.png)
 
 ---
 
+### Grafana dashboard exported JSON
+
+The screenshot below shows the pre-configured fincore-alert.json used to automatically provision the Grafana dashboard. It defines panel layouts, data sources, alert rules, and visualizations for real-time monitoring of the banking microservice.
+
+
+![alt text](screenshots/Dashboard-json.png)
+
 ### Alerts (Alerts.png)
 
+Displays configured alerts (e.g., high CPU usage or memory consumption thresholds) in Grafana
+
 ![alt text](screenshots/Alerts.png)
+
 ---
 
+### Alert Firing (on grafana)
+
+Indicates an alert condition that has triggered, visible on the dashboard with red status.
+
+![alt text](screenshots/Alert-firing.png)
+
+---
+
+### Alert Firing Mail
+
+Email received when a Grafana alert fires. Ensures critical incidents are reported in real time.
+
+![alt text](screenshots/Alert-firing-mail.png)
+
+---
+
+### Alert resolved mail
+
+Email confirmation showing that the previously triggered alert condition has been resolved.
+
+![alt text](screenshots/Alert-resolved-mail.png)
+
+---
+
+### Terraform Remote State via S3 (infra.tfstate)
+
+The following screenshot shows the `infra.tfstate` file automatically created and managed in the configured S3 bucket, ensuring consistent and shareable infrastructure state across team members.
+
+![alt text](screenshots/Backend-S3-statestorage.png)
 
 
 ## Future Enhancements
