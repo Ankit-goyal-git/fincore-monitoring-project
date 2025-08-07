@@ -261,7 +261,12 @@ docker run -d -p 9100:9100 prom/node-exporter
 ### 🔹 9. Start Grafana
 
 ```bash
-docker run -d -p 3000:3000 grafana/grafana
+docker run -d -p 3000:3000 \
+                -v $(pwd)/grafana/provisioning:/etc/grafana/provisioning \
+                -v $(pwd)/grafana/dashboards:/var/lib/grafana/dashboards \
+                -v $(pwd)/grafana/grafana.ini:/etc/grafana/grafana.ini \
+                -v grafana-storage:/var/lib/grafana \
+                grafana/grafana
 ```
 
 - Access Grafana:
