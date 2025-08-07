@@ -550,6 +550,8 @@ The screenshot below shows the pre-configured fincore-alert.json used to automat
 
 ![alt text](screenshots/Dashboard-json.png)
 
+---
+
 ### Alerts (Alerts.png)
 
 Displays configured alerts (e.g., high CPU usage or memory consumption thresholds) in Grafana
@@ -588,6 +590,7 @@ The following screenshot shows the `infra.tfstate` file automatically created an
 
 ![alt text](screenshots/Backend-S3-statestorage.png)
 
+---
 
 ## Future Enhancements
 
