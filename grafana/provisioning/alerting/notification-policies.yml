@@ -2,7 +2,7 @@ apiVersion: 1
 
 policies:
   - orgId: 1
-    receiver: email-alert
+    receiver: fincore alerts
     group_by: ['alertname']
     group_wait: 10s
     group_interval: 1m
