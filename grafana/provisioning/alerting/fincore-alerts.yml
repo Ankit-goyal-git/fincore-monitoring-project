@@ -58,7 +58,7 @@ groups:
             severity: warning
           isPaused: false
           notification_settings:
-            receiver: grafana-default-email
+            receiver: fincore alerts
     - orgId: 1
       name: fincore-alert
       folder: fincore-monitoring
@@ -122,7 +122,7 @@ groups:
             severity: critical
           isPaused: false
           notification_settings:
-            receiver: grafana-default-email
+            receiver: fincore alerts
     - orgId: 1
       name: fincore-alert-memory
       folder: fincore-alert
@@ -182,7 +182,7 @@ groups:
             severity: warning
           isPaused: false
           notification_settings:
-            receiver: grafana-default-email
+            receiver: fincore alerts
     - orgId: 1
       name: fincore-alert-lowdisk
       folder: fincore-low disk alert
@@ -241,4 +241,4 @@ groups:
             severity: warning
           isPaused: false
           notification_settings:
-            receiver: grafana-default-email
+            receiver: fincore alerts
