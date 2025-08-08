@@ -43,6 +43,9 @@ Metrics are collected using Prometheus client libraries.
 
 - To apply Infrastructure as Code principles using Terraform for automated, repeatable provisioning of the monitoring stack and deployment targets.
 
+## Contribution
+
+<img width="436" height="348" alt="image" src="https://github.com/user-attachments/assets/e6ae15ff-2c63-495f-912d-210437130442" />
 
 ## 📚 Table of Contents
 
