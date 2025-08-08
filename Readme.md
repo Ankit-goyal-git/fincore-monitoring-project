@@ -141,10 +141,10 @@ fincore-monitoring/
   │     ├── Alert-resolved-mail.png # Screenshot of mail for alert resolved notification
   │     └── Backend-S3-statestorage.png # Screenshot of Terraform storing remote state in S3 bucket
   ├── terraform-fincore/
-  │     ├── main.tf               # Terraform infrastructure config
-  │     ├── output.tf             # Output values from Terraform
-  │     ├── terraform.tfvars      # Environment-specific variable values
-  │     ├── variables.tf          # Declared Terraform variables
+  │     ├── main.tf  # Terraform infrastructure config
+  │     ├── output.tf  # Output values from Terraform
+  │     ├── terraform.tfvars # Environment-specific variable values
+  │     ├── variables.tf # Declared Terraform variables
   │     └── backend.tf # Defines remote backend (S3) for shared state
 
 ```
@@ -186,13 +186,13 @@ You can provision the entire infrastructure on AWS EC2 using [Terraform](https:/
    - Grafana with preloaded dashboards, alerts, and Prometheus datasource
 
 ### Terraform State Management
-To enable collaborative and consistent infrastructure management, the project uses remote state storage with an S3 bucket as the Terraform backend.
+- To enable collaborative and consistent infrastructure management, the project uses remote state storage with an S3 bucket as the Terraform backend.
 
-backend.tf configures the S3 backend to store the Terraform state file remotely.
+- backend.tf configures the S3 backend to store the Terraform state file remotely.
 
-This ensures state persistence, team collaboration, and safe concurrent operations.
+- This ensures state persistence, team collaboration, and safe concurrent operations.
 
-📷 See Backend-S3-statestorage.png for a screenshot of the remote state setup.
+![📷 See Backend-S3-statestorage.png for a screenshot of the remote state setup.](screenshots/Backend-S3-statestorage.png)
 
 ### 📁 Terraform Directory Structure
 
@@ -423,107 +423,172 @@ This project includes four active Grafana-managed alert rules. They are exported
 
 ### Alert Rules Included
 
-1. **High Memory Usage** (`fincore-alert-memory`)
-   - **Purpose:** Detect when memory usage exceeds 80%.
-   - **Query:** `100 * (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes))`
-   - **Condition:** Average above 80% for 2 minutes.
-   - **Labels:** `severity: warning`
-   - **Summary:** High memory usage detected on instance.
-   - **Description:** Memory usage is above threshold, consider investigating memory pressure.
+1. ***High Disk I/O Wait*** (`fincore-alert-disk I/O`)
 
-2. **High Disk I/O Wait** (`fincore-alert-disk I/O`)
-   - **Purpose:** Detect excessive CPU time waiting on disk I/O.
-   - **Query:** `rate(node_cpu_seconds_total{mode="iowait"}[1m]) * 100`
-   - **Condition:** Above 20% for 2 minutes.
-   - **Labels:** `severity: warning`
-   - **Summary:** High I/O wait detected.
-   - **Description:** CPU is spending too much time waiting on disk operations.
+   - Purpose: Detect excessive CPU time spent waiting on disk I/O.
 
-3. **Low Disk Space** (`fincore-alert-lowdisk`)
-   - **Purpose:** Alert when disk usage is high (>80%).
-   - **Query:** `(node_filesystem_size_bytes{fstype!~"tmpfs|overlay"} - node_filesystem_free_bytes{fstype!~"tmpfs|overlay"}) / node_filesystem_size_bytes{fstype!~"tmpfs|overlay"} * 100`
-   - **Condition:** Above 80% usage for 2 minutes.
-   - **Labels:** `severity: warning`
-   - **Summary:** Disk space running low.
-   - **Description:** Available disk space below acceptable threshold.
+   - Query:
 
-4. **General Monitoring Health** (`fincore-alert`)
-   - **Purpose:** Ensure that all key monitoring targets (application, system metrics) are up and being scraped correctly.
-   - **Query/Condition:** Checks for missing or down Prometheus targets.
-   - **Labels:** `severity: normal`
-   - **Summary:** One or more monitoring targets are unavailable.
-   - **Description:** This alert fires if any expected service (e.g., Node Exporter or Flask app) is down or not exposing metrics. It serves as a catch-all for missing metrics and general system monitoring health.
+   ``` promql
+   rate(node_cpu_seconds_total{mode="iowait"}[1m]) * 100
+   Condition: Above 20% for 2 minutes.
+   ```
+
+   - Labels: `severity: warning`
+
+   - Summary: High Disk I/O Wait Detected.
+
+   - Description: CPU is spending more than 20% of its time waiting on disk I/O on instance `{{ $labels.instance }}`.
+
+2. ***High CPU Usage*** (`fincore-alert`)
+
+   - Purpose: Detect when overall CPU usage exceeds 80%.
+
+   - Query:
+
+   ```promql
+
+   100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[2m])) * 100)
+   ```
+   - Condition: Above 80% for 2 minutes.
+
+   - Labels: `severity: critical`
+
+   - Summary: High CPU usage detected.
+
+   - Description: CPU usage on instance `{{ $labels.instance }}` has exceeded 80% for the last 2 minutes.
+
+3. ***High Memory Usage*** (`fincore-alert-memory`)
+
+   - Purpose: Detect when memory usage exceeds 80%.
+
+   - Query:
+
+   ```promql
+
+   100 * (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes))
+   ```
+
+   - Condition: Above 80% for 2 minutes.
+
+   - Labels: `severity: warning`
+
+   - Summary: High Memory Usage.
+
+   - Description: Memory usage on instance `{{ $labels.instance }}` is above 80%.
+
+4. ***Low Disk Space*** (`fincore-alert-lowdisk`)
+
+   - Purpose: Alert when disk usage is high (>80%).
+
+   - Query:
+
+   ```promql
+
+   (node_filesystem_size_bytes{fstype!~"tmpfs|overlay"} - node_filesystem_free_bytes{fstype!~"tmpfs|overlay"}) 
+   / node_filesystem_size_bytes{fstype!~"tmpfs|overlay"} * 100
+   ```
+
+   - Condition: Above 80% for 2 minutes.
+
+   - Labels: `severity: warning`
+
+   - Summary: Disk space running low.
+
+   - Description: The disk usage on instance `{{ $labels.instance }}` has crossed 80%.
+
+
+![alt text](screenshots/Alerts.png)
+![alt text](screenshots/Alerts2.png)
 
 
 ### How to Simulate and Revert Alerts
 You can manually trigger and then revert the alert conditions to test your Grafana alert rules.
 
-#### 🔺 1. High Memory Usage (fincore-alert-memory)
+#### 🔺 1. High Disk I/O Wait (fincore-alert-disk I/O)
 
-**Simulate:**
-
-```bash
-sudo yum install -y stress
-stress --vm 1 --vm-bytes 512M --timeout 30s
-```
-
-This allocates 512MB of memory for 30 seconds.
-
-**Revert:**
-No action needed — memory is released automatically after 30 seconds.
-
-#### 🔺 2. High Disk I/O Wait (fincore-alert-disk I/O)
-
-**Simulate:**
+**Simulate:** Generate heavy disk I/O activity so the CPU spends time in `iowait` mode.
 
 ```bash
 dd if=/dev/zero of=testfile bs=10M count=500
+
 ```
 ![alt text](screenshots/Simulating-alert.png)
-This writes 5GB to disk, causing disk I/O pressure.
+
+This writes 5GB to disk, creating high disk I/O wait time.
+
+![alt text](screenshots/Disk-io-alert.png)
+
 
 **Revert:**
 
 ```bash
 rm testfile
 ```
-Deletes the file and stops disk activity.
 
-#### 🔺 3. Low Disk Space (fincore-alert-lowdisk)
+Removes the file and stops I/O activity.
 
-**Simulate:**
+#### 🔺 2. High CPU Usage (`fincore-alert`)
+
+**Simulate:** Use stress to load the CPU above 80% for at least 2 minutes.
+
+```bash
+sudo yum install -y stress
+stress --cpu 2 --timeout 60s
+```
+![alt text](screenshots/Stress-command.png)
+Runs 2 CPU workers for 60 seconds.
+
+![alt text](screenshots/CPU-Usage-alert.png)
+
+
+**Revert:**
+The stress process stops automatically after the timeout.
+
+![alt text](screenshots/Cpu-usage-Alertresolved.png)
+
+#### 🔺 3. High Memory Usage (fincore-alert-memory)
+
+**Simulate:** Allocate memory to push usage above 80%.
+
+```bash
+sudo yum install -y stress
+stress --vm 2 --vm-bytes 1G --timeout 60s
+```
+
+Allocates 2GB of memory for 60 seconds.
+
+**Revert:**
+Memory is freed automatically after the command ends.
+
+![alt text](screenshots/Memory-usage-alert.png) ![alt text](screenshots/Alert-Resolved.png)
+
+
+#### 🔺 4.  Low Disk Space (fincore-alert-lowdisk)
+
+**Simulate :** Create a large dummy file to consume more than 80% of available disk
 
 ```bash
 dd if=/dev/zero of=bigfile bs=100M count=100
 ```
-Creates a 10GB dummy file to reduce available disk space.
+![alt text](screenshots/low-diskspace-alert.png)
+Creates a 10GB file.
 
-- Triggered Alert : 
-![alt text](screenshots/Alert-firing.png)
-**Revert:**
+**Revert :**
 
 ```bash
 rm bigfile
 ```
-Removes the file to free up space and reset the alert.
-
-#### 🔺 4. General Monitoring Health (fincore-alert)
-
-**Simulate (stop Node Exporter):**
-
-```bash
-docker stop $(docker ps -q --filter ancestor=prom/node-exporter)
-```
-Stops Node Exporter, simulating a failed or unreachable monitoring service.
-
-**Revert (restart Node Exporter):**
-
-```bash
-docker run -d -p 9100:9100 prom/node-exporter
-```
-Restarts Node Exporter to restore monitoring.
+Deletes the file and frees up space.
 
 ## Screenshots 
+
+### Running Docker Containers
+This screenshot displays all active Docker containers for the project, including Grafana, the banking microservice, Prometheus, and Node Exporter, each mapped to their respective ports.
+
+![alt text](screenshots/Containers.png)
+
+---
 
 
 ### Prometheus targets page (Prometheus-targets.png)
@@ -555,6 +620,8 @@ The screenshot below shows the pre-configured fincore-alert.json used to automat
 Displays configured alerts (e.g., high CPU usage or memory consumption thresholds) in Grafana
 
 ![alt text](screenshots/Alerts.png)
+![alt text](screenshots/Alerts2.png)
+
 
 ---
 
