@@ -330,6 +330,7 @@ docker run -d -p 9100:9100 prom/node-exporter
 
 ### 🔹 9. Start Grafana
 
+
 ```bash
 docker run -d -p 3000:3000 \
                 -v $(pwd)/grafana/provisioning:/etc/grafana/provisioning \
